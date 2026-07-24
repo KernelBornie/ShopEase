@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.env.local
+prisma/dev.db
+prisma/*.db
+.DS_Store
+*.log
+.vercel
+package-lock.json
+.env

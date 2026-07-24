@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Cart {
+  id             String     @id @default(cuid())
+  sessionId      String?    @unique
+  userId         String?
+  lastActivity   DateTime   @default(now())
+  abandonedEmail String?
+  reminderSent   Boolean    @default(false)
+  User           User?      @relation(fields: [userId], references: [id])
+  CartItem       CartItem[]
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int     @default(1)
+  price     Float
+  Cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  Product   Product @relation(fields: [productId], references: [id])
+}
+
+model Coupon {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  type        String
+  value       Float
+  minOrder    Float?
+  maxDiscount Float?
+  usageLimit  Int?
+  usedCount   Int      @default(0)
+  validFrom   DateTime
+  validUntil  DateTime
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+}
+
+model NewsletterSubscriber {
+  id    String @id @default(cuid())
+  email String @unique
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  orderNumber    String        @unique
+  userId         String?
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  address        String?
+  deliveryMode   String
+  deliverySlot   String?
+  total          Float
+  status         String        @default("PENDING")
+  createdAt      DateTime      @default(now())
+  carrier        String?
+  trackingNumber String?
+  User           User?         @relation(fields: [userId], references: [id])
+  OrderItem      OrderItem[]
+  TrackingLog    TrackingLog[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+  name      String
+  Order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Product   Product @relation(fields: [productId], references: [id])
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  description String
+  price       Float
+  stock       Int         @default(0)
+  images      String
+  category    String
+  featured    Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  CartItem    CartItem[]
+  OrderItem   OrderItem[]
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String
+  userName  String
+  rating    Int
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model SiteSettings {
+  id              String   @id @default(cuid())
+  siteName        String   @default("ShopEase")
+  primaryColor    String   @default("#15803d")
+  heroTitle       String   @default("ShopEase")
+  heroSubtitle    String   @default("Your trusted partner for quality products, fast delivery, and exceptional service.")
+  footerText      String   @default("© 2025 ShopEase. All rights reserved.")
+  aboutTitle      String?  @default("About ShopEase")
+  aboutSubtitle   String?  @default("Your trusted partner for quality products, fast delivery, and exceptional service.")
+  aboutMission    String?  @default("To make online shopping effortless, enjoyable, and accessible to everyone. We curate only the best products, ensuring premium quality at fair prices, and deliver them to your doorstep with care and speed.")
+  aboutStory      String?  @default("ShopEase was founded in 2025 by a group of e-commerce enthusiasts who believed that shopping online should be simple, safe, and satisfying. What started as a small local store in Lusaka has grown into Zambia's most reliable retail platform.")
+  contactPhone    String?  @default("+260 973 632 403")
+  contactEmail    String?  @default("support@shopeease.com")
+  contactLocation String?  @default("Lusaka, Zambia")
+  whatsappNumber  String?  @default("260973632403")
+  teamMembers     String?  @default("[{\"name\":\"Mututwa Mututwa\",\"role\":\"Founder & CEO\",\"initials\":\"MM\",\"desc\":\"Visionary leader driving retail innovation in Zambia.\"},{\"name\":\"Kaishe Mututwa\",\"role\":\"Operations Manager\",\"initials\":\"KM\",\"desc\":\"Logistics specialist ensuring speedy regional deliveries.\"},{\"name\":\"Mututwa Junior\",\"role\":\"Customer Support Lead\",\"initials\":\"MJ\",\"desc\":\"Dedicated champion for customer-first service.\"}]")
+  updatedAt       DateTime @default(now()) @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  rating    Int
+  content   String
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  image     String?
+}
+
+model TrackingLog {
+  id          String   @id @default(cuid())
+  orderId     String
+  status      String
+  description String
+  location    String?
+  timestamp   DateTime @default(now())
+  Order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String?
+  name      String?
+  role      String   @default("CUSTOMER")
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  Cart      Cart[]
+  Order     Order[]
+}
+
+model Campaign {
+  id         String   @id @default(cuid())
+  title      String
+  highlights String
+  videoUrl   String
+  views      Int      @default(0)
+  likes      Int      @default(0)
+  createdAt  DateTime @default(now())
+}

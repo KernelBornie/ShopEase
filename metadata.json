@@ -1,0 +1,11 @@
+{
+  "name": "ShopEase",
+  "description": "Your trusted Zambian partner for quality products, fast delivery, and exceptional service.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
